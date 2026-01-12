@@ -9,4 +9,8 @@ pnpm install
 echo "Gerando schema do Prisma"
 pnpm prisma generate
 
+echo "Executando migrations"
+pnpm prisma migrate dev
+pnpm prisma:seed
+
 exec "$@"

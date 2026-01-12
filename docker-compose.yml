@@ -1,4 +1,33 @@
 services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    command: >
+      --innodb_flush_log_at_trx_commit=0 --innodb_buffer_pool_size=256M --innodb_log_buffer_size=16M --max_connections=1000 --sql_mode="" --skip-log-bin
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: newstack
+    volumes:
+      - ../newstack-database:/var/lib/mysql
+    networks:
+      - newstack_network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-padmin",
+        ]
+      timeout: 20s
+      retries: 10
+
   backend:
     container_name: backend
     build:
@@ -11,6 +40,17 @@ services:
       - ../newstack-docker/backend/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=mysql://root:admin@db:3306/newstack
+      - DATABASE_HOST=db
+      - DATABASE_PORT=3306
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=admin
+      - DATABASE_NAME=newstack
+    networks:
+      - newstack_network
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     container_name: frontend
@@ -25,5 +65,10 @@ services:
     environment:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - API_URL=http://127.0.0.1:8000
     depends_on:
       - backend
+
+networks:
+  newstack_network:
+    driver: bridge
