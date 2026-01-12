@@ -64,8 +64,10 @@ services:
       - ../newstack-docker/frontend/entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:3000
-      - API_URL=http://127.0.0.1:8000
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - API_URL=http://backend:8000
+    networks:
+      - newstack_network
     depends_on:
       - backend
 
