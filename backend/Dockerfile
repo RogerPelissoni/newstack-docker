@@ -2,6 +2,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache git openssh-client
 RUN npm install -g pnpm
 
 EXPOSE 8000
